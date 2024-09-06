@@ -1,0 +1,66 @@
+name: Laravel Story App CI
+
+# When to run this workflow
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# Set the jobs to run in parallel
+jobs:
+  laravel-tests:
+
+    # The environment where the tests will run
+    runs-on: ubuntu-latest
+
+    # Set up the sequence of steps
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up PHP
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'  # Specify the PHP version you are using
+          extensions: mbstring, bcmath, mysql  # Install required PHP extensions
+          coverage: none
+
+      # Step 3: Install Composer dependencies
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      # Step 4: Copy .env file and set up key
+      - name: Set up environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      # Step 5: Run database migrations
+      - name: Run migrations
+        run: php artisan migrate --env=testing --force
+
+      # Step 6: Run the test suite
+      - name: Run tests
+        run: php artisan test --no-interaction --env=testing
+
+  # Optional: Job for running frontend build (if using npm)
+  build-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Run build
+        run: npm run production  # Or 'npm run dev' for development builds
