@@ -49,15 +49,22 @@ jobs:
         run: php artisan test --no-interaction --env=testing
 
   # Optional: Job for running frontend build (if using npm)
-  build-assets:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  # Optional: Job for running frontend build (if using npm)
+build-assets:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'  # Update to Node.js version 20
+
+    - name: Install Node dependencies
+      run: npm install
+
+    - name: Run build
+      run: npm run production  # Or 'npm run dev' for development builds
 
       - name: Install Node dependencies
         run: npm install
